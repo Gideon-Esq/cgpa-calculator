@@ -1,6 +1,7 @@
-const createCourse = (title, unit, grade) => ({ title, unit, grade });
+const createCourse = (code, title, unit, grade) => ({ code, title, unit, grade });
 
-function CourseObject(title, unit, grade) {
+function CourseObject(code, title, unit, grade) {
+  this.code = code;
   this.title = title;
   this.unit = unit;
   this.grade = grade;

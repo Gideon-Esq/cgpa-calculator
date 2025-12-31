@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import './App.css';
 import Footer from './components/Footer';
@@ -6,57 +5,45 @@ import Graph from './components/Graph';
 import Semester from './components/Semester/Semester.js';
 import SemesterButton from './components/SemesterButton';
 import SemiCircleProgressBar from './components/SemiCircleProgressBar';
-import { CourseObject, calculateCGPA } from './utils';
-
-
-
-
+import { calculateCGPA } from './utils';
+import { courseData } from './data/courses';
 
 function App() {
 
   const [semesters, setSemesters] = useState([])
   const [activeSemesterID, setActiveSemester] = useState(0);
 
-  const localStorageKey = 'results';
-
+  const localStorageKey = 'results_blis_oau';
 
   useEffect(() => {
     let results = localStorage.getItem(localStorageKey)
     if (results !== null) {
-      results = JSON.parse(results)
-
+      try {
+        results = JSON.parse(results)
+      } catch (e) {
+        results = []
+      }
     }
-    else if (results === null || results.length < 0) {
-      results = [{ courses: [new CourseObject("", 0, 5)], }]
+
+    if (!results || results.length === 0) {
+      // Initialize with one empty semester
+      results = [{ level: '', semesterType: '', courses: [] }]
     }
 
     setSemesters(results)
-
   }, [])
 
 
   useEffect(() => {
-    localStorage.setItem(localStorageKey, JSON.stringify(semesters));
+    if (semesters.length > 0) {
+        localStorage.setItem(localStorageKey, JSON.stringify(semesters));
+    }
   }, [semesters]);
-
-
-
-
-
-
-  const addCourse = (semesterIndex, course) => {
-    const newSemesters = [...semesters];
-    newSemesters[semesterIndex].courses.push(course);
-
-    setSemesters(newSemesters);
-
-    return newSemesters;
-  };
 
 
   const addSemester = () => {
     const newSemesters = [...semesters]
-    newSemesters.push({ courses: [new CourseObject("", 0, 5)] });
+    newSemesters.push({ level: '', semesterType: '', courses: [] });
     setSemesters(newSemesters);
 
     setActiveSemester(newSemesters.length - 1)
@@ -67,92 +54,60 @@ function App() {
     return (semesterIndex === activeSemesterID)
   }
 
-
-
-  // const updateCourse = (semesterIndex, courseIndex) => {
-  //   const newSemesters = [...semesters];
-  //   let semester = newSemesters[semesterIndex];
-
-  //   semester.courses[courseIndex].unit 
-  // }
-
-
-  const handleUnitChange = (semesterIndex, courseIndex, unit) => {
+  const handleSessionChange = (semesterIndex, level, semesterType) => {
     const newSemesters = [...semesters];
     let semester = newSemesters[semesterIndex];
 
-    semester.courses[courseIndex].unit = parseInt(unit);
+    semester.level = level;
+    semester.semesterType = semesterType;
 
-    setSemesters(newSemesters)
-  }
+    // Filter courses from data
+    if (level && semesterType) {
+        const filteredCourses = courseData.filter(c => c.level === level && c.semester === semesterType);
 
+        // Map to course objects with default grade A (5)
+        semester.courses = filteredCourses.map(c => ({
+            code: c.code,
+            title: c.title,
+            unit: c.unit,
+            grade: 5 // Default grade
+        }));
+    } else {
+        semester.courses = [];
+    }
 
-  const handleCourseTitleChange = (semesterIndex, courseIndex, title) => {
-    const newSemesters = [...semesters];
-    let semester = newSemesters[semesterIndex];
-
-    semester.courses[courseIndex].title = title;
-
-    setSemesters(newSemesters)
+    setSemesters(newSemesters);
   }
 
   const handleGradeChange = (semesterIndex, courseIndex, grade) => {
     const newSemesters = [...semesters];
     let semester = newSemesters[semesterIndex];
 
-    semester.courses[courseIndex].grade = grade;
+    semester.courses[courseIndex].grade = parseInt(grade);
 
     setSemesters(newSemesters)
   }
-
-  const handleClearCourses = (semesterIndex) => {
-    const newSemesters = [...semesters];
-    let semester = newSemesters[semesterIndex]
-
-    semester.courses = [];
-
-    setSemesters(newSemesters)
-  }
-
-
-
-  const handleDeleteCourse = (semesterIndex, courseIndex) => {
-    const newSemesters = [...semesters];
-    let semester = newSemesters[semesterIndex];
-
-    semester.courses.splice(courseIndex, 1);
-
-    setSemesters(newSemesters);
-  }
-
-
 
   const handleDeleteSemester = (semesterIndex) => {
     if (semesters.length === 1) {
-      handleClearCourses(semesterIndex);
+      // Reset the single semester instead of deleting it
+      const newSemesters = [...semesters];
+      newSemesters[0] = { level: '', semesterType: '', courses: [] };
+      setSemesters(newSemesters);
       return
     }
     const newSemesters = [...semesters];
     newSemesters.splice(semesterIndex, 1)
 
-    /* BUG */
-    /* if (semesterIndex === activeSemesterID) {
-      setActiveSemester(Math.max(activeSemesterID - 1, 0))
-    } */
-
-    /* BUG FIX */
     if (semesterIndex <= activeSemesterID) {
       setActiveSemester(Math.max(activeSemesterID - 1, 0))
     }
     setSemesters(newSemesters);
-
-
   }
 
   const handleViewAnalysis = () => {
     const element = document.getElementById('details-section');
     if (element) {
-      // 👇 Will scroll smoothly to the top of the next section
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
@@ -162,13 +117,12 @@ function App() {
 
   return (
     <>
-    {/* Ads Banner */}
-    {/* <div className="w-full">
-      
-    </div> */}
     <div className='content flex flex-col grow p-3 px-7 gap-1'>
       {/* Header */}
-      <span className='content__header mb-2 border-b-4 border-indigo-500 self-start pb-3'>GPA CALCULATOR</span>
+      <div className='mb-2 border-b-4 border-indigo-500 self-start pb-3'>
+        <h1 className='text-2xl font-bold'>BLIS OAU CGPA Calculator</h1>
+        <p className='text-sm text-gray-500'>Department of Educational Technology and Library Studies</p>
+      </div>
 
       {/* Dialup section */}
       <div className='flex border-b-2  pb-3'>
@@ -196,13 +150,11 @@ function App() {
       <div className="flex flex-col bg-white grow p-3">
         {semesters.length > 0 &&
           <Semester
-            courses={semesters[activeSemesterID].courses}
-            id={activeSemesterID} addCourse={addCourse}
+            id={activeSemesterID}
+            semester={semesters[activeSemesterID]}
+            handleSessionChange={handleSessionChange}
             handleGradeChange={handleGradeChange}
-            handleUnitChange={handleUnitChange}
-            handleCourseTitleChange={handleCourseTitleChange}
-            handleClearCourses={() => handleClearCourses(activeSemesterID)}
-            handleDeleteCourse={handleDeleteCourse} />
+           />
         }
         {/* Semester data */}
         {/* Analysis section - Graphs */}
