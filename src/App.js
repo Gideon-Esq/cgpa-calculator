@@ -117,37 +117,37 @@ function App() {
 
   return (
     <>
-    <div className='content flex flex-col grow p-3 px-7 gap-1'>
+    <div className='content flex flex-col grow p-2 sm:p-3 md:px-7 gap-1'>
       {/* Header */}
-      <div className='mb-2 border-b-4 border-indigo-500 self-start pb-3'>
-        <h1 className='text-2xl font-bold'>BLIS OAU CGPA Calculator</h1>
-        <p className='text-sm text-gray-500'>Department of Educational Technology and Library Studies</p>
+      <div className='mb-2 border-b-4 border-indigo-500 pb-3 md:self-start'>
+        <h1 className='text-lg sm:text-xl md:text-2xl font-bold'>BLIS OAU CGPA Calculator</h1>
+        <p className='text-xs sm:text-sm text-gray-500'>Department of Educational Technology and Library Studies</p>
       </div>
 
       {/* Dialup section */}
-      <div className='flex border-b-2  pb-3'>
-        <div className='w-52  ml-auto mr-auto'>
+      <div className='flex flex-col md:flex-row items-center border-b-2 pb-3 gap-3'>
+        <div className='w-36 sm:w-44 md:w-52 mx-auto md:ml-auto md:mr-auto'>
           <SemiCircleProgressBar value={results.CGPA} />
-
         </div>
-        <div className='flex flex-col'>
-          <span className='mb-4'> <span>Units Total: {results.totalUnits}</span> </span>
-
-          <button className='bg-slate-800 p-3 rounded text-white' onClick={handleViewAnalysis}>View Analysis</button>
+        <div className='flex flex-col items-center md:items-start'>
+          <span className='mb-2 md:mb-4 text-sm md:text-base'>
+            <span className='font-medium md:font-normal'>Units Total: {results.totalUnits}</span>
+          </span>
+          <button className='bg-slate-800 p-2 md:p-3 px-4 rounded text-white text-sm md:text-base' onClick={handleViewAnalysis}>View Analysis</button>
         </div>
       </div>
 
       {/* Semesters picker */}
-      <div className='flex whitespace-nowrap flex-wrap'>
-        <div className='flex gap-2 flex-wrap'>
+      <div className='flex flex-col md:flex-row gap-2 md:gap-0 py-2 md:whitespace-nowrap md:flex-wrap'>
+        <div className='flex gap-2 flex-wrap overflow-x-auto pb-2 md:pb-0'>
           {semesters.map((semester, index) => {
             return <SemesterButton key={index} id={index} active={checkIfSemesterActive(index)} onClick={() => setActiveSemester(index)} handleDeleteSemester={() => handleDeleteSemester(index)} />
           })}
         </div>
-        <button className='ml-auto rounded border p-2 bg-black text-white' onClick={addSemester}>Add Semester + </button>
+        <button className='md:ml-auto rounded border p-2 px-3 bg-black text-white text-sm md:text-base whitespace-nowrap' onClick={addSemester}>Add Semester +</button>
       </div>
       {/* Calculator */}
-      <div className="flex flex-col bg-white grow p-3">
+      <div className="flex flex-col bg-white grow p-2 md:p-3 rounded-lg md:rounded-none shadow-sm md:shadow-none">
         {semesters.length > 0 &&
           <Semester
             id={activeSemesterID}
@@ -158,8 +158,13 @@ function App() {
         }
         {/* Semester data */}
         {/* Analysis section - Graphs */}
-        <div id='details-section' className=''>
-          <Graph semesters={semesters} />
+        <div id='details-section' className='mt-4 sm:mt-6 p-2 md:p-0'>
+          <h2 className='text-lg md:text-xl font-bold mb-3 text-gray-700 md:hidden'>Performance Analysis</h2>
+          <div className='w-full max-w-full overflow-x-auto'>
+            <div className='min-w-[280px] md:min-w-0'>
+              <Graph semesters={semesters} />
+            </div>
+          </div>
         </div>
       </div>
 

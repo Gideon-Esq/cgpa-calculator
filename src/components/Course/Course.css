@@ -1,5 +1,17 @@
 td input, select {
     background-color: rgb(242,247,247);
     color: #333;
-    height: 40px;
+    height: 36px;
+}
+
+@media (max-width: 639px) {
+    td input, select {
+        height: 40px;
+    }
+}
+
+/* Course card touch feedback for mobile */
+.course-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
 }

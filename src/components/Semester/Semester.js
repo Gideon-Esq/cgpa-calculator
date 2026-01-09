@@ -27,12 +27,19 @@ function Semester(props) {
     return (
         <div className='flex flex-col'>
             {/* Header with Selectors */}
-            <div className='flex flex-col md:flex-row pb-4 gap-4 items-start md:items-center'>
-                <span className='font-bold text-xl' style={{ color: 'rgb(3,4,94)' }}>Semester {id + 1}</span>
+            <div className='flex flex-col md:flex-row gap-3 pb-4 md:gap-4 md:items-start md:items-center'>
+                <div className='flex flex-col md:hidden gap-2'>
+                    <span className='font-bold text-lg' style={{ color: 'rgb(3,4,94)' }}>Semester {id + 1}</span>
+                    <span className='font-bold text-base bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full w-fit'>
+                        GPA: {calculateGPA(semester.courses)}
+                    </span>
+                </div>
+                
+                <span className='hidden md:block font-bold text-xl' style={{ color: 'rgb(3,4,94)' }}>Semester {id + 1}</span>
 
-                <div className="flex gap-2">
+                <div className="flex flex-col md:flex-row gap-2">
                     <select
-                        className="border rounded p-2"
+                        className="border rounded p-2 text-sm md:text-base w-full md:w-auto bg-white"
                         value={semester.level || ""}
                         onChange={(e) => handleSessionChange(id, e.target.value, semester.semesterType)}
                     >
@@ -43,7 +50,7 @@ function Semester(props) {
                     </select>
 
                     <select
-                        className="border rounded p-2"
+                        className="border rounded p-2 text-sm md:text-base w-full md:w-auto bg-white"
                         value={semester.semesterType || ""}
                         onChange={(e) => handleSessionChange(id, semester.level, e.target.value)}
                     >
@@ -52,12 +59,13 @@ function Semester(props) {
                         <option value="Rain">Rain</option>
                     </select>
                 </div>
-
-                <span className='font-bold ml-auto'>Semester GPA: {calculateGPA(semester.courses)}</span>
+                
+                <span className='hidden md:block font-bold md:ml-auto'>Semester GPA: {calculateGPA(semester.courses)}</span>
             </div>
 
-            {/* Courses table */}
-            <div className="overflow-x-auto">
+            {/* Courses - Table on desktop, Cards on mobile */}
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
                 <table className='table-auto w-full mx-auto'>
                     <thead>
                         <tr className="bg-gray-100 text-left">
@@ -74,6 +82,7 @@ function Semester(props) {
                                     key={index}
                                     course={course}
                                     handleGradeChange={(grade) => handleGradeChange(id, index, grade)}
+                                    isMobile={false}
                                 />
                             })
                         ) : (
@@ -85,6 +94,24 @@ function Semester(props) {
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden flex flex-col gap-2">
+                {semester.courses.length > 0 ? (
+                    semester.courses.map((course, index) => {
+                        return <Course
+                            key={index}
+                            course={course}
+                            handleGradeChange={(grade) => handleGradeChange(id, index, grade)}
+                            isMobile={true}
+                        />
+                    })
+                ) : (
+                    <div className="text-center p-4 text-gray-500 text-sm bg-gray-50 rounded-lg">
+                        Please select Level and Semester to load courses.
+                    </div>
+                )}
             </div>
         </div>
     )

@@ -37,15 +37,31 @@ function Graph({ semesters }) {
         cgpa_at_semester.push(cgpa)
     }
 
+    const isMobile = window.innerWidth < 768;
+    
     const options = {
         responsive: true,
+        maintainAspectRatio: !isMobile,
         plugins: {
           legend: {
-            position: 'top',
+            position: isMobile ? 'bottom' : 'top',
+            labels: {
+              boxWidth: isMobile ? 12 : 15,
+              padding: isMobile ? 10 : 15,
+              font: {
+                size: isMobile ? 11 : 12
+              }
+            }
           },
           title: {
             display: true,
-            text: 'CGPA and GPA at each semester chart',
+            text: isMobile ? 'GPA & CGPA Trend' : 'CGPA and GPA at each semester chart',
+            font: {
+              size: isMobile ? 14 : 16
+            },
+            padding: {
+              bottom: isMobile ? 10 : 20
+            }
           },
         },
         scales: {
@@ -56,14 +72,21 @@ function Graph({ semesters }) {
                     stepSize: 1,
                     suggestedMin: 0,
                     suggestedMax: 5,
-
+                    font: {
+                      size: isMobile ? 10 : 12
+                    }
                 },
-                
             },
-            
+            x: {
+                ticks: {
+                  font: {
+                    size: isMobile ? 10 : 12
+                  },
+                  maxRotation: 45,
+                  minRotation: 0
+                }
+            }
         },
-        
-        
       };
     // For cgpa per semester, start from first semester, caluclate cgpa, then include the second semester in the data
     const data = {
@@ -83,7 +106,7 @@ function Graph({ semesters }) {
         ]
     }
     return (
-        <div className=''>
+        <div className='w-full h-[250px] sm:h-[300px] md:h-auto'>
             <Line data={data} options={options}/>
         </div>
     )
