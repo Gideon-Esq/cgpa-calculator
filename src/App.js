@@ -88,6 +88,87 @@ function App() {
     setSemesters(newSemesters)
   }
 
+  // Get list of already selected level+semesterType combinations (excluding current semester)
+  const getSelectedSemesters = (currentSemesterIndex) => {
+    return semesters
+      .filter((_, index) => index !== currentSemesterIndex)
+      .filter(s => s.level && s.semesterType)
+      .map(s => `${s.level}-${s.semesterType}`);
+  }
+
+  // Get failed courses from previous semesters that can be retaken
+  const getFailedCourses = (currentSemesterIndex) => {
+    const currentSemester = semesters[currentSemesterIndex];
+    if (!currentSemester || !currentSemester.level || !currentSemester.semesterType) return [];
+
+    const failedCoursesMap = new Map(); // Use Map to deduplicate by course code
+    const currentSemesterCodes = currentSemester.courses.map(c => c.code);
+
+    // Build a map of courses that have been passed (retaken successfully) in any semester
+    const passedCourses = new Set();
+    semesters.forEach((sem) => {
+      if (!sem.level || !sem.semesterType) return;
+      sem.courses.forEach(course => {
+        // If course was passed (grade > 0), add to passed set
+        if (course.grade > 0) {
+          passedCourses.add(course.code);
+        }
+      });
+    });
+
+    // Look through all previous semesters for failed courses
+    semesters.forEach((sem, index) => {
+      if (index >= currentSemesterIndex) return; // Only look at previous semesters
+      if (!sem.level || !sem.semesterType) return;
+
+      // Only allow carrying forward failed courses from same semester type (Harmattan or Rain)
+      if (sem.semesterType !== currentSemester.semesterType) return;
+
+      sem.courses.forEach(course => {
+        // Check if course failed (grade 0 = F), not already in current semester, 
+        // and hasn't been passed in any other semester
+        if (course.grade === 0 && 
+            !currentSemesterCodes.includes(course.code) && 
+            !passedCourses.has(course.code)) {
+          // Only add if not already in map (keeps the first/earliest failure)
+          // Or overwrite to keep the most recent failure
+          failedCoursesMap.set(course.code, {
+            ...course,
+            originalLevel: sem.level,
+            originalSemester: sem.semesterType
+          });
+        }
+      });
+    });
+
+    // Convert map values to array
+    return Array.from(failedCoursesMap.values());
+  }
+
+  const handleAddFailedCourse = (semesterIndex, failedCourse) => {
+    const newSemesters = [...semesters];
+    let semester = newSemesters[semesterIndex];
+
+    // Add the failed course with default grade A (so they can change it)
+    semester.courses.push({
+      code: failedCourse.code,
+      title: failedCourse.title,
+      unit: failedCourse.unit,
+      grade: 5, // Default to A
+      isCarryOver: true,
+      originalLevel: failedCourse.originalLevel
+    });
+
+    setSemesters(newSemesters);
+  }
+
+  const handleRemoveCarryOver = (semesterIndex, courseCode) => {
+    const newSemesters = [...semesters];
+    let semester = newSemesters[semesterIndex];
+    semester.courses = semester.courses.filter(c => !(c.code === courseCode && c.isCarryOver));
+    setSemesters(newSemesters);
+  }
+
   const handleDeleteSemester = (semesterIndex) => {
     if (semesters.length === 1) {
       // Reset the single semester instead of deleting it
@@ -154,6 +235,10 @@ function App() {
             semester={semesters[activeSemesterID]}
             handleSessionChange={handleSessionChange}
             handleGradeChange={handleGradeChange}
+            selectedSemesters={getSelectedSemesters(activeSemesterID)}
+            failedCourses={getFailedCourses(activeSemesterID)}
+            handleAddFailedCourse={handleAddFailedCourse}
+            handleRemoveCarryOver={handleRemoveCarryOver}
            />
         }
         {/* Semester data */}
