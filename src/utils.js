@@ -1,13 +1,3 @@
-const createCourse = (code, title, unit, grade) => ({ code, title, unit, grade });
-
-function CourseObject(code, title, unit, grade) {
-  this.code = code;
-  this.title = title;
-  this.unit = unit;
-  this.grade = grade;
-}
-
-
 const calculateCGPA = (semesters) => {
   let totalUnits = 0;
   let totalGrades = 0;
@@ -23,11 +13,11 @@ const calculateCGPA = (semesters) => {
   });
 
 
-  let CGPA = (totalGrades / totalUnits).toFixed(2)
+  let CGPA = totalGrades / totalUnits;
   return {
-    CGPA: isNaN(CGPA) ? 0 : CGPA,
+    CGPA: isNaN(CGPA) ? 0 : parseFloat(CGPA.toFixed(2)),
     totalUnits: totalUnits
   };
 };
 
-export {createCourse, CourseObject, calculateCGPA};
+export { calculateCGPA };

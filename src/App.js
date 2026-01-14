@@ -24,8 +24,6 @@ function App() {
     trackCarryOverAdded,
     trackCarryOverRemoved,
     trackCGPACalculated,
-    // eslint-disable-next-line no-unused-vars
-    trackError,
   } = useAnalytics();
 
   const localStorageKey = 'results_blis_oau';
@@ -53,7 +51,11 @@ function App() {
     if (semesters.length > 0) {
         localStorage.setItem(localStorageKey, JSON.stringify(semesters));
     }
-  }, [semesters]);
+    // Ensure activeSemesterID is always valid
+    if (activeSemesterID >= semesters.length && semesters.length > 0) {
+      setActiveSemester(semesters.length - 1);
+    }
+  }, [semesters, activeSemesterID]);
 
 
   const addSemester = () => {
@@ -75,6 +77,11 @@ function App() {
   const handleSessionChange = (semesterIndex, level, semesterType) => {
     const newSemesters = [...semesters];
     let semester = newSemesters[semesterIndex];
+
+    // Guard against undefined semester
+    if (!semester) {
+      return;
+    }
 
     semester.level = level;
     semester.semesterType = semesterType;
@@ -103,6 +110,11 @@ function App() {
   const handleGradeChange = (semesterIndex, courseIndex, grade) => {
     const newSemesters = [...semesters];
     let semester = newSemesters[semesterIndex];
+
+    // Guard against undefined semester or course
+    if (!semester || !semester.courses || !semester.courses[courseIndex]) {
+      return;
+    }
 
     semester.courses[courseIndex].grade = parseInt(grade);
 
@@ -272,7 +284,7 @@ function App() {
       </div>
       {/* Calculator */}
       <div className="flex flex-col bg-white grow p-2 md:p-3 rounded-lg md:rounded-none shadow-sm md:shadow-none">
-        {semesters.length > 0 &&
+        {semesters.length > 0 && semesters[activeSemesterID] &&
           <Semester
             id={activeSemesterID}
             semester={semesters[activeSemesterID]}

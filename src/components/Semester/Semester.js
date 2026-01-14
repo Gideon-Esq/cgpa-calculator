@@ -16,6 +16,15 @@ function Semester(props) {
 
     const [showFailedModal, setShowFailedModal] = useState(false);
 
+    // Guard against undefined semester
+    if (!semester) {
+        return (
+            <div className="text-center p-4 text-gray-500">
+                Loading semester data...
+            </div>
+        );
+    }
+
     // Check if a semester combination is already selected
     const isSemesterSelected = (level, semesterType) => {
         return selectedSemesters.includes(`${level}-${semesterType}`);
