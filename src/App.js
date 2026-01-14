@@ -7,11 +7,26 @@ import SemesterButton from './components/SemesterButton';
 import SemiCircleProgressBar from './components/SemiCircleProgressBar';
 import { calculateCGPA } from './utils';
 import { courseData } from './data/courses';
+import { useAnalytics } from './hooks/useAnalytics';
 
 function App() {
 
   const [semesters, setSemesters] = useState([])
   const [activeSemesterID, setActiveSemester] = useState(0);
+
+  // Initialize analytics
+  const {
+    trackSemesterAdded,
+    trackSemesterDeleted,
+    trackGradeChanged,
+    trackSessionChanged,
+    trackAnalysisViewed,
+    trackCarryOverAdded,
+    trackCarryOverRemoved,
+    trackCGPACalculated,
+    // eslint-disable-next-line no-unused-vars
+    trackError,
+  } = useAnalytics();
 
   const localStorageKey = 'results_blis_oau';
 
@@ -47,6 +62,9 @@ function App() {
     setSemesters(newSemesters);
 
     setActiveSemester(newSemesters.length - 1)
+    
+    // Track analytics
+    trackSemesterAdded();
   }
 
 
@@ -72,6 +90,9 @@ function App() {
             unit: c.unit,
             grade: 5 // Default grade
         }));
+        
+        // Track analytics
+        trackSessionChanged(level, semesterType);
     } else {
         semester.courses = [];
     }
@@ -86,6 +107,9 @@ function App() {
     semester.courses[courseIndex].grade = parseInt(grade);
 
     setSemesters(newSemesters)
+    
+    // Track analytics
+    trackGradeChanged(semester.courses[courseIndex].code, grade);
   }
 
   // Get list of already selected level+semesterType combinations (excluding current semester)
@@ -160,6 +184,9 @@ function App() {
     });
 
     setSemesters(newSemesters);
+    
+    // Track analytics
+    trackCarryOverAdded(failedCourse.code);
   }
 
   const handleRemoveCarryOver = (semesterIndex, courseCode) => {
@@ -167,6 +194,9 @@ function App() {
     let semester = newSemesters[semesterIndex];
     semester.courses = semester.courses.filter(c => !(c.code === courseCode && c.isCarryOver));
     setSemesters(newSemesters);
+    
+    // Track analytics
+    trackCarryOverRemoved(courseCode);
   }
 
   const handleDeleteSemester = (semesterIndex) => {
@@ -184,6 +214,9 @@ function App() {
       setActiveSemester(Math.max(activeSemesterID - 1, 0))
     }
     setSemesters(newSemesters);
+    
+    // Track analytics
+    trackSemesterDeleted();
   }
 
   const handleViewAnalysis = () => {
@@ -191,10 +224,20 @@ function App() {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
+    
+    // Track analytics
+    trackAnalysisViewed();
   };
 
 
   const results = calculateCGPA(semesters);
+  
+  // Track CGPA calculation whenever it changes
+  useEffect(() => {
+    if (results.CGPA > 0) {
+      trackCGPACalculated(results.CGPA, results.totalUnits);
+    }
+  }, [results.CGPA, results.totalUnits, trackCGPACalculated]);
 
   return (
     <>
