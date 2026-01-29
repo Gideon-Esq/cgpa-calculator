@@ -73,6 +73,9 @@ function Semester(props) {
                         <option value="3" disabled={semester.semesterType && isSemesterSelected('3', semester.semesterType)}>
                             Part 3 {semester.semesterType && isSemesterSelected('3', semester.semesterType) ? '(Already selected)' : ''}
                         </option>
+                        <option value="4" disabled={semester.semesterType && isSemesterSelected('4', semester.semesterType)}>
+                            Part 4 {semester.semesterType && isSemesterSelected('4', semester.semesterType) ? '(Already selected)' : ''}
+                        </option>
                     </select>
 
                     <select

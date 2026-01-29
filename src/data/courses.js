@@ -57,5 +57,16 @@ export const courseData = [
     { level: '3', semester: 'Rain', code: 'ETL314', title: 'Project Management and Evaluation', unit: 2 },
     { level: '3', semester: 'Rain', code: 'ETL316', title: 'Research Methodology in Library, Archives and Information Science', unit: 2 },
     { level: '3', semester: 'Rain', code: 'ETL330', title: 'Resources Sharing and Networking', unit: 2 },
-    { level: '3', semester: 'Rain', code: 'ETL332', title: 'Information Resources in Subject Area', unit: 2 }
+    { level: '3', semester: 'Rain', code: 'ETL332', title: 'Information Resources in Subject Area', unit: 2 },
+
+    // Part 4 - Harmattan Semester
+    { level: '4', semester: 'Harmattan', code: 'BUL403', title: 'Law of Intellectual Property I', unit: 4 },
+    { level: '4', semester: 'Harmattan', code: 'ETL403', title: 'Knowledge Management', unit: 2 },
+    { level: '4', semester: 'Harmattan', code: 'ETL405', title: 'Quantitative Methods in Library and Information Science', unit: 2 },
+    { level: '4', semester: 'Harmattan', code: 'ETL407', title: 'Information Seeking Behaviour', unit: 2 },
+    { level: '4', semester: 'Harmattan', code: 'ETL409', title: 'Library Automation', unit: 2 },
+    { level: '4', semester: 'Harmattan', code: 'ETL411', title: 'School Libraries and Media Resources Centre', unit: 2 },
+    { level: '4', semester: 'Harmattan', code: 'ETL413', title: 'Information Resources Development', unit: 2 },
+    { level: '4', semester: 'Harmattan', code: 'ETL417', title: 'Management of Digital Libraries', unit: 2 },
+    { level: '4', semester: 'Harmattan', code: 'ETL419', title: 'Politics and Economics of Information', unit: 2 }
 ];
